@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+ :root {
+  --foreground-rgb: 0, 0, 0;
+  --background-rgb: 255, 255, 255;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* --foreground-rgb: 255, 255, 255;
+    --background-rgb: 0, 0, 0; */
+    --foreground-rgb: 0, 0, 0;
+    --background-rgb: 255, 255, 255;
+  }
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: rgb(var(--background-rgb))
+}
+
+ol {
+  list-style: decimal;
+  list-style-position: inside;
+}
+
+ul li p, ol li p {
+  display: inline;
+} 
+
+/* add lines on the left for blockquotes */
+blockquote {
+  border-left: 2px solid rgb(var(--foreground-rgb));
+  margin-left: 1em;
+  padding-left: 1em;
+}
