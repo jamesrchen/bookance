@@ -23,7 +23,15 @@ export default function Page() {
 				<Error />
 			</Suspense>
 
-			<div className="p-10 w-full flex flex-row justify-center">
+			<h1 className="text-center text-2xl font-bold">
+				Bookance
+			</h1>
+			<h3 className="text-center text-lg font-medium">
+				Ask questions about literary texts. Quotes provided.
+			</h3>
+
+			<p className="mt-5 mb-2 text-center text-base">Sign in with your school email:</p>
+			<div className="w-full flex flex-row justify-center">
 				<motion.div
 					className="text-center border-black border-2 rounded-lg p-2 w-fit"
 					initial={{ scale: 1 }}
