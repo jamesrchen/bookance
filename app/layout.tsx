@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Literata } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react"
 import "./globals.css";
 
 const literata = Literata({ subsets: ["latin"] });
@@ -16,6 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <Analytics />
       <body className={literata.className}>{children}</body>
     </html>
   );
