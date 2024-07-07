@@ -3,20 +3,20 @@ import { useState } from "react";
 import { IoSend } from "react-icons/io5";
 import { motion } from "framer-motion";
 import { getAnswer } from "@/app/lib/actions";
-import { Corpus } from "@/app/lib/definitions";
+import { Corpus, CorpusName } from "@/app/lib/definitions";
+import { corpora } from "@/config";
 
 export default function QuestionInput() {
   let [question, setQuestion] = useState<string>("");
   let [waiting, setWaiting] = useState(0);
+  
 
-  let [chosenCorpus, setChosenCorpus] = useState<Corpus[]>([Corpus.waiting_for_the_barbarians, Corpus.death_and_the_maiden]);
+  let [chosenCorpus, setChosenCorpus] = useState<CorpusName[]>([]);
 
   let [error, setError] = useState<string>("");
 
-  let corpus = [
-    Corpus.waiting_for_the_barbarians,
-    Corpus.death_and_the_maiden
-  ]
+  // Defaults
+  let corpus: CorpusName[] = Object.keys(corpora) as CorpusName[];
 
   return (
   // <div className="border-black w-10 h-10 rounded">
@@ -54,29 +54,34 @@ export default function QuestionInput() {
         <IoSend className="bg-black text-white w-20 h-10 rounded-lg px-4 py-2" />
       </motion.div>
     </div>
-    <div className="flex flex-row flex-wrap gap-3">
-      {/* Checkboxes for corpus */}
-      {corpus.map((c) => (
-        <motion.div
-          key={c.name}
-          className="border-black border-2 rounded-lg p-2"
-          initial={{ scale: 1 }}
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.92 }}
-          onTap={() => {
-            if (chosenCorpus.includes(c as Corpus)) {
-              setChosenCorpus(chosenCorpus.filter((cc) => cc !== c));
-            } else {
-              setChosenCorpus([...chosenCorpus, c as Corpus]);
-            }
-          }}
-          style={{backgroundColor: chosenCorpus.includes(c as Corpus) ? "black" : "white", color: chosenCorpus.includes(c as Corpus) ? "white" : "black"}}
-        >
-          {c.name}
-        </motion.div>
-      ))}
+
+    <div>
+      <b>Select some texts:</b>
+      <div className="flex flex-row flex-wrap gap-3">
+        {/* Checkboxes for corpus */}
+        {corpus.map((c) => (
+          <motion.div
+            key={c}
+            className="border-black border-2 rounded-lg p-2"
+            initial={{ scale: 1 }}
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.92 }}
+            onTap={() => {
+              if (chosenCorpus.includes(c)) {
+                setChosenCorpus(chosenCorpus.filter((cc) => cc !== c));
+              } else {
+                setChosenCorpus([...chosenCorpus, c]);
+              }
+            }}
+            style={{backgroundColor: chosenCorpus.includes(c) ? "black" : "white", color: chosenCorpus.includes(c) ? "white" : "black"}}
+          >
+            {c}
+          </motion.div>
+        ))}
+      </div>
     </div>
-    <p>Chosen corpus: <i>{chosenCorpus.map((c) => c.name).join(", ")}</i></p>
+    
+    <p>Chosen corpus: <i>{chosenCorpus.length > 0 ? chosenCorpus.join(", ") : "None Selected"}</i></p>
     
     {/* If preparing an answer */}
     <div className="flex flex-row w-full justify-center h-4">

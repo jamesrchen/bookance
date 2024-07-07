@@ -2,17 +2,18 @@
 
 import OpenAI from 'openai';
 import { sql } from '@vercel/postgres';
-import { Answer, AnswerWithUser, Corpus, User, fileToTitle } from '@/app/lib/definitions';
+import { Answer, AnswerWithUser, Corpus, CorpusName, fileToTitle, User } from '@/app/lib/definitions';
 import { revalidatePath } from 'next/cache';
 import { Google, generateCodeVerifier, generateState } from 'arctic';
 import { google, validateRequest } from '@/app/lib/auth';
 import { cookies } from 'next/headers';
+import { corpora } from '@/config';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_KEY, 
 });
 
-export async function getAnswer(question: string, corpora: Corpus[] ) {
+export async function getAnswer(question: string, selectedCorpora: CorpusName[] ) {
   // Validate user
   const userID = await validateRequest();
   if (!userID) {
@@ -23,14 +24,13 @@ export async function getAnswer(question: string, corpora: Corpus[] ) {
     throw new Error("Question is required");
   }
 
-  if (!corpora || corpora.length === 0) {
+  if (!selectedCorpora || selectedCorpora.length === 0) {
     throw new Error("Corpora is required");
   }
 
-  let files = corpora.map((corpus) => {
-    return corpus.files.map(file => {
-      return file;
-    });
+  let files = selectedCorpora.map((name) => {
+    let corpus = corpora[name];
+    return Object.keys(corpus.files);
   }).flat(1);
 
   const vectorStore = await openai.beta.vectorStores.create({
@@ -46,7 +46,7 @@ export async function getAnswer(question: string, corpora: Corpus[] ) {
     instructions: `You are a literature assistant.
                     You answer questions on works of literature provided.
                     Ensure you use relevant themes and literary devices in discussions.
-                    Ensure that you also provide quotes to support your answer. Use > on a new line to indicate a longer quote.
+                    Ensure that you also provide quotes to support your answer. Use > on a new line to indicate a quote, this is important.
                     Make sure to keep your response short and concise as well, approximately 300 words.`,
     model: "gpt-4o",
     tools: [{"type": "file_search"}],
@@ -92,6 +92,7 @@ export async function getAnswer(question: string, corpora: Corpus[] ) {
         if (annotation.type != 'file_citation') {
           continue;
         }
+        console.log("Replacement check: ", annotation.file_citation)
         let replacement = fileToTitle.get(annotation.file_citation.file_id);
         if (replacement) {
           answer = answer.replace(annotation.text, ` (${replacement})`);
@@ -103,7 +104,7 @@ export async function getAnswer(question: string, corpora: Corpus[] ) {
       // Add the answer to the database
       const result = await sql`
         INSERT INTO answers (question, answer, user_id, corpora)
-        VALUES (${question}, ${answer}, ${userID}, ${JSON.stringify(corpora.map(corpus => corpus.name)).replace("[", "{").replace("]", "}")} )
+        VALUES (${question}, ${answer}, ${userID}, ${JSON.stringify(selectedCorpora).replace("[", "{").replace("]", "}")} )
       `
       revalidatePath('/');
       await openai.beta.vectorStores.del(vectorStore.id);
