@@ -2,7 +2,6 @@ import { db, sql } from "@vercel/postgres";
 import { Google, generateCodeVerifier, generateState } from "arctic";
 import { cookies } from "next/headers";
 import { cache } from "react";
-import { verify } from "jsonwebtoken";
 import * as jose from 'jose'
 import { User } from "@/app/lib/definitions";
 
