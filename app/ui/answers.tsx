@@ -5,15 +5,14 @@ type props = {
   userID?: string;
 }
 
-export default async function Answers({userID}: {userID?: string}) {
-  let answers = await fetchAnswers(userID);
+export default async function Answers({userID, bookmarked}: {userID?: string, bookmarked?: boolean}) {
+  let answers = await fetchAnswers(userID, bookmarked);
 
   return (
     <div className="flex flex-col gap-5">
-    {/* place template answer here, this is used for the loading environment */}
-    {answers.map((answer) => (
-      <Answer key={answer.id} answer={answer} />
-    ))}
-  </div>
+      {answers.map((answer) => (
+        <Answer key={answer.id} answer={answer} />
+      ))}
+    </div>
   )
 }

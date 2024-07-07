@@ -159,3 +159,29 @@ export async function submitComment(answerID: number, content: string) {
   `;
   revalidatePath('/');
 }
+
+export async function bookmarkAnswers(answerID: number) {
+  const userID = await validateRequest();
+  if (!userID) {
+    throw new Error("User not authenticated");
+  }
+
+  const result = await sql`
+    INSERT INTO bookmarks (user_id, answer_id)
+    VALUES (${userID}, ${answerID})
+  `;
+  revalidatePath('/');
+}
+
+export async function unbookmarkAnswers(answerID: number) {
+  const userID = await validateRequest();
+  if (!userID) {
+    throw new Error("User not authenticated");
+  }
+
+  const result = await sql`
+    DELETE FROM bookmarks
+    WHERE user_id = ${userID} AND answer_id = ${answerID}
+  `;
+  revalidatePath('/');
+}

@@ -1,18 +1,36 @@
 import { QueryResult, sql } from '@vercel/postgres';
-import { Answer, AnswerWithUser, Comment, CommentWithUser, Corpus, User } from '@/app/lib/definitions';
+import { Answer, AnswerWithUser, AnswerWithUserAndBookmarked, Comment, CommentWithUser, Corpus, User } from '@/app/lib/definitions';
 import { unstable_noStore as noStore } from 'next/cache';
+import { validateRequest } from '@/app/lib/auth';
 
-export async function fetchAnswers(userID?: string) {
+// user_id   text    not null
+// constraint bookmarks_users_id_fk
+//     references users
+//     on update cascade on delete cascade,
+// answer_id integer not null
+// constraint bookmarks_answers_id_fk
+//     references answers
+//     on update cascade on delete cascade,
+// constraint bookmarks_pk
+// primary key (user_id, answer_id)
+
+export async function fetchAnswers(userID?: string, bookmarked?: boolean) {
   noStore();
   try {
     // const data = await sql<Answer>`SELECT * FROM answers ORDER BY id DESC`;
     // join using foreign key user_id
-    let data: QueryResult<AnswerWithUser>;
+    const userID = await validateRequest();
+    let data: QueryResult<AnswerWithUserAndBookmarked>;
     if (userID) {
-      data = await sql<AnswerWithUser>`SELECT answers.*, users.name, users.picture FROM answers JOIN users ON answers.user_id = users.id WHERE answers.user_id = ${userID} ORDER BY answers.id DESC LIMIT 50`;
+      if (bookmarked) {
+        data = await sql<AnswerWithUserAndBookmarked>`SELECT answers.*, users.name, users.picture, bookmarks.user_id IS NOT NULL as bookmarked FROM answers JOIN users ON answers.user_id = users.id JOIN bookmarks ON answers.id = bookmarks.answer_id AND bookmarks.user_id = ${userID} ORDER BY answers.id DESC LIMIT 50`;
+      } else {
+        data = await sql<AnswerWithUserAndBookmarked>`SELECT answers.*, users.name, users.picture, bookmarks.user_id IS NOT NULL as bookmarked FROM answers JOIN users ON answers.user_id = users.id LEFT JOIN bookmarks ON answers.id = bookmarks.answer_id AND bookmarks.user_id = ${userID} ORDER BY answers.id DESC LIMIT 50`;
+      }
     } else {
-      data = await sql<AnswerWithUser>`SELECT answers.*, users.name, users.picture FROM answers JOIN users ON answers.user_id = users.id ORDER BY answers.id DESC LIMIT 50`;
+      data = await sql<AnswerWithUserAndBookmarked>`SELECT answers.*, users.name, users.picture, bookmarks.user_id IS NOT NULL as bookmarked FROM answers JOIN users ON answers.user_id = users.id LEFT JOIN bookmarks ON answers.id = bookmarks.answer_id ORDER BY answers.id DESC LIMIT 50`;
     }
+    // console.log(data.rows)
     return data.rows
   } catch (error) {
     console.error('Database Error:', error);

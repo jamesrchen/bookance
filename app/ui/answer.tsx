@@ -1,9 +1,11 @@
 import { fetchComment } from "@/app/lib/data";
-import { AnswerWithUser } from "@/app/lib/definitions";
+import { AnswerWithUser, AnswerWithUserAndBookmarked } from "@/app/lib/definitions";
 import CommentInput from "@/app/ui/commentInput";
 import Markdown, { AllowElement } from 'react-markdown'
+import { FaRegBookmark, FaBookmark, FaRegThumbsUp, FaThumbsUp } from "react-icons/fa";
+import AnswerLikeButton from "@/app/ui/answerLikeButton";
 
-export default async function Answer({answer}: {answer: AnswerWithUser}) {
+export default async function Answer({answer}: {answer: AnswerWithUserAndBookmarked}) {
   let comments = await fetchComment(answer.id);
 
   return (
@@ -15,7 +17,13 @@ export default async function Answer({answer}: {answer: AnswerWithUser}) {
         {/* {answer.answer} */}
         <Markdown>{answer.answer}</Markdown>
       </div>
-      <span className="text-gray-500 w-full text-right">Asked by {answer.name}</span>
+      <div className="mt-2 mb-2 w-full flex flex-row gap-2 content-end align-bottom">
+        <AnswerLikeButton id={answer.id} liked={answer.bookmarked} />
+        {/* <FaBookmark size={20} className="text-gray-500" /> */}
+        {/* <FaThumbsUp size={20} className="text-gray-500" />
+        <span className="text-gray-500">1</span> */}
+        <span className="text-gray-500 w-full text-right mt-auto mb-auto">Asked by {answer.name}</span>
+      </div>
       <hr/>
       <div className="flex flex-col gap-3">
         {/* Comments */}
