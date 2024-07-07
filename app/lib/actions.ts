@@ -88,17 +88,19 @@ export async function getAnswer(question: string, selectedCorpora: CorpusName[] 
     if(message.content[0] && message.content[0].type === 'text') {
       let answer = message.content[0].text.value; 
 
+      let offset = 0;
       for (let annotation of message.content[0].text.annotations) {
         if (annotation.type != 'file_citation') {
           continue;
         }
-        console.log("Replacement check: ", annotation.file_citation)
+
         let replacement = fileToTitle.get(annotation.file_citation.file_id);
         if (replacement) {
           answer = answer.replace(annotation.text, ` (${replacement})`);
         } else {
           console.error("No replacement found for ", annotation.file_citation.file_id);
         }
+
       }
       // console.log(message.content[0].text.annotations[0].file_citation);
       // Add the answer to the database
