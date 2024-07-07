@@ -17,8 +17,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <Analytics />
-      <body className={literata.className}>{children}</body>
+      <body className={literata.className}>
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
