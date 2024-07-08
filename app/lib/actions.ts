@@ -8,6 +8,8 @@ import { Google, generateCodeVerifier, generateState } from 'arctic';
 import { google, validateRequest } from '@/app/lib/auth';
 import { cookies } from 'next/headers';
 import { corpora } from '@/config';
+import { fetchUserInfo } from '@/app/lib/data';
+import { title } from 'process';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_KEY, 
@@ -19,6 +21,8 @@ export async function getAnswer(question: string, selectedCorpora: CorpusName[] 
   if (!userID) {
     throw new Error("User not authenticated");
   }
+
+  const user = await fetchUserInfo(userID);
 
   if (!question || question.length === 0) {
     throw new Error("Question is required");
@@ -109,8 +113,31 @@ export async function getAnswer(question: string, selectedCorpora: CorpusName[] 
         VALUES (${question}, ${answer}, ${userID}, ${JSON.stringify(selectedCorpora).replace("[", "{").replace("]", "}")} )
       `
       revalidatePath('/');
-      await openai.beta.vectorStores.del(vectorStore.id);
-      await openai.beta.assistants.del(assistant.id);
+      openai.beta.vectorStores.del(vectorStore.id);
+      openai.beta.assistants.del(assistant.id);
+
+      // Notify discord webhook
+      if (process.env.DISCORD_WEBHOOK_URL) {
+        fetch(process.env.DISCORD_WEBHOOK_URL, {
+          method : 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            embeds: [
+              {
+                author: {
+                  name: user.name,
+                  icon_url: user.picture
+                },
+                title: question,
+                description: answer,
+              }
+            ]
+          })
+        })
+      }
+
       return;
     }
 
