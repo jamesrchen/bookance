@@ -25,7 +25,9 @@ export async function fetchAnswers(userID?: string, bookmarked?: boolean) {
       if (bookmarked) {
         data = await sql<AnswerWithUserAndBookmarked>`SELECT answers.*, users.name, users.picture, bookmarks.user_id IS NOT NULL as bookmarked FROM answers JOIN users ON answers.user_id = users.id JOIN bookmarks ON answers.id = bookmarks.answer_id AND bookmarks.user_id = ${userID} ORDER BY answers.id DESC LIMIT 50`;
       } else {
-        data = await sql<AnswerWithUserAndBookmarked>`SELECT answers.*, users.name, users.picture, bookmarks.user_id IS NOT NULL as bookmarked FROM answers JOIN users ON answers.user_id = users.id LEFT JOIN bookmarks ON answers.id = bookmarks.answer_id AND bookmarks.user_id = ${userID} ORDER BY answers.id DESC LIMIT 50`;
+        // Select only answers by the user
+        data = await sql<AnswerWithUserAndBookmarked>`SELECT answers.*, users.name, users.picture, bookmarks.user_id IS NOT NULL as bookmarked FROM answers JOIN users ON answers.user_id = users.id LEFT JOIN bookmarks ON answers.id = bookmarks.answer_id AND bookmarks.user_id = ${userID} WHERE answers.user_id = ${userID} ORDER BY answers.id DESC LIMIT 50`;
+        // data = await sql<AnswerWithUserAndBookmarked>`SELECT answers.*, users.name, users.picture, bookmarks.user_id IS NOT NULL as bookmarked FROM answers WHERE  JOIN users ON answers.user_id = users.id LEFT JOIN bookmarks ON answers.id = bookmarks.answer_id AND bookmarks.user_id = ${userID} ORDER BY answers.id DESC LIMIT 50`;
       }
     } else {
       data = await sql<AnswerWithUserAndBookmarked>`SELECT answers.*, users.name, users.picture, bookmarks.user_id IS NOT NULL as bookmarked FROM answers JOIN users ON answers.user_id = users.id LEFT JOIN bookmarks ON answers.id = bookmarks.answer_id ORDER BY answers.id DESC LIMIT 50`;
