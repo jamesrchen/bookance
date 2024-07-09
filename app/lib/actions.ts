@@ -110,14 +110,17 @@ export async function getAnswer(question: string, selectedCorpora: CorpusName[] 
       let quotes = answer.match(/"(.*?)"/g)
       console.log(quotes)
       
+      console.log(answer)
       if(quotes) {
-        // look for any quotes separated by ..., if there exists any split them 
-        // into separate quotes
+        // look for any quotes separated by ... or [...]
         let newQuotes: string[] = []
         for (let quote of quotes) {
           let splitQuotes = quote.split("...");
           newQuotes = newQuotes.concat(splitQuotes);
         }
+
+        // Remove duplicates
+        newQuotes = Array.from(new Set(newQuotes));
 
         for (let quote of newQuotes) {
           // Check if contents of quote matches anything in corpora table content
