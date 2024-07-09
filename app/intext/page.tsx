@@ -38,11 +38,11 @@ export default async function Page({
       {/* <h1 className="">Search Results:</h1> */}
       <div className="flex flex-col gap-2">
         {data.map(({line: selectedLine}) => (
-          <div className="border rounded-md p-2 [&_p]:my-1 [&_p]:indent-2">
+          <div key={corpus+"selected"+selectedLine.toString()} className="border rounded-md p-2 [&_p]:my-1 [&_p]:indent-2">
             {
               fetchLines(corpus as CorpusName, selectedLine - 3, selectedLine + 3).then((lines) => {
                 return lines.map(({line, content}) => (
-                  <p className={clsx(
+                  <p key={corpus + line.toString()} className={clsx(
                     line === selectedLine ? "font-bold text-black" : "text-gray-600"
                   )}>
                     {content}
