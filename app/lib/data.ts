@@ -19,7 +19,7 @@ export async function fetchAnswers(userID?: string, bookmarked?: boolean) {
   try {
     // const data = await sql<Answer>`SELECT * FROM answers ORDER BY id DESC`;
     // join using foreign key user_id
-    const userID = await validateRequest();
+    // const userID = await validateRequest();
     let data: QueryResult<AnswerWithUserAndBookmarked>;
     if (userID) {
       if (bookmarked) {
