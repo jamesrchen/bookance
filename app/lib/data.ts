@@ -69,7 +69,7 @@ export async function intextSearch(corpus: CorpusName, search: string) {
     if (cleanSearch.length > 15) {
       cleanSearch = cleanSearch.slice(4, -4)
     }
-    const data = await sql<CorporaSearch>`SELECT * FROM corpora WHERE content ILIKE ${`%${search}%`} LIMIT 3`;
+    const data = await sql<CorporaSearch>`SELECT * FROM corpora WHERE id = ${corpus} AND content ILIKE ${`%${search}%`} LIMIT 3`;
     // console.log(data)
     return data.rows;
   } catch (error) {
