@@ -2,6 +2,7 @@ import { fetchComment } from "@/app/lib/data";
 import { AnswerWithUser, AnswerWithUserAndBookmarked } from "@/app/lib/definitions";
 import CommentInput from "@/app/ui/commentInput";
 import Markdown, { AllowElement } from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import { FaRegBookmark, FaBookmark, FaRegThumbsUp, FaThumbsUp } from "react-icons/fa";
 import AnswerLikeButton from "@/app/ui/answerLikeButton";
 
@@ -15,6 +16,7 @@ export default async function Answer({answer}: {answer: AnswerWithUserAndBookmar
       <hr/>
       <div className="leading-relaxed [&_h3]:text-lg [&_h4]:text-lg [&_h3]:font-semibold [&_h4]:font-medium [&_h3]:my-1 [&_h4]:my-0.5 [&_p]:my-1 [&_p]:indent-2">
         {/* {answer.answer} */}
+        {/* <Markdown remarkPlugins={[remarkGfm]}>{answer.answer}</Markdown> */}
         <Markdown>{answer.answer}</Markdown>
       </div>
       <div className="mt-2 mb-2 w-full flex flex-row gap-2 content-end align-bottom">

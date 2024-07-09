@@ -84,10 +84,11 @@ export async function GET(req: NextRequest) {
       sameSite: 'lax',
     });
   
-    return Response.redirect(`${process.env.BASE_URL}/`).headers.set(
-      'Set-Cookie',
-      `token = ${jwt}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=7200;`
-    );
+    return Response.redirect(`${process.env.BASE_URL}/`)
+    // .headers.set(
+    //   'Set-Cookie',
+    //   `token = ${jwt}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=7200;`
+    // );
   } catch (error) {
     console.error(error);
     return Response.redirect(`${process.env.BASE_URL}/`);

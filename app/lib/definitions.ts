@@ -46,3 +46,9 @@ export interface CommentWithUser extends Comment {
   name: string;
   picture: string;
 }
+
+export interface CorporaSearch {
+  id: string;
+  line: number;
+  content: string;
+}

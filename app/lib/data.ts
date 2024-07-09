@@ -1,5 +1,5 @@
 import { QueryResult, sql } from '@vercel/postgres';
-import { Answer, AnswerWithUser, AnswerWithUserAndBookmarked, Comment, CommentWithUser, Corpus, User } from '@/app/lib/definitions';
+import { Answer, AnswerWithUser, AnswerWithUserAndBookmarked, Comment, CommentWithUser, CorporaSearch, Corpus, CorpusName, User } from '@/app/lib/definitions';
 import { unstable_noStore as noStore } from 'next/cache';
 import { validateRequest } from '@/app/lib/auth';
 
@@ -57,5 +57,33 @@ export async function fetchComment(answerID: number) {
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch comments');
+  }
+}
+
+export async function intextSearch(corpus: CorpusName, search: string) {
+  // fuzzy search from corpora table column content
+  try {
+    // console.log(`%${search}%`)
+    let cleanSearch = search.trim()
+    // If longer than 15 chars, remove leading and trailing 4 chars
+    if (cleanSearch.length > 15) {
+      cleanSearch = cleanSearch.slice(4, -4)
+    }
+    const data = await sql<CorporaSearch>`SELECT * FROM corpora WHERE content ILIKE ${`%${search}%`} LIMIT 3`;
+    // console.log(data)
+    return data.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch search results');
+  }
+}
+
+export async function fetchLines(corpus: CorpusName, lineStart: number, lineEnd: number) {
+  try {
+    const data = await sql<CorporaSearch>`SELECT * FROM corpora WHERE id = ${corpus} AND line BETWEEN ${lineStart} AND ${lineEnd} ORDER BY line ASC`;
+    return data.rows;
+  } catch (error) {
+    console.error('Database Error:', error);
+    throw new Error('Failed to fetch search results');
   }
 }

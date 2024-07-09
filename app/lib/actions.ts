@@ -2,13 +2,13 @@
 
 import OpenAI from 'openai';
 import { sql } from '@vercel/postgres';
-import { Answer, AnswerWithUser, Corpus, CorpusName, fileToTitle, User } from '@/app/lib/definitions';
+import { Answer, AnswerWithUser, CorporaSearch, Corpus, CorpusName, fileToTitle, User } from '@/app/lib/definitions';
 import { revalidatePath } from 'next/cache';
 import { Google, generateCodeVerifier, generateState } from 'arctic';
 import { google, validateRequest } from '@/app/lib/auth';
 import { cookies } from 'next/headers';
 import { corpora } from '@/config';
-import { fetchUserInfo } from '@/app/lib/data';
+import { fetchUserInfo, intextSearch } from '@/app/lib/data';
 import { title } from 'process';
 
 const openai = new OpenAI({
@@ -104,8 +104,49 @@ export async function getAnswer(question: string, selectedCorpora: CorpusName[] 
         } else {
           console.error("No replacement found for ", annotation.file_citation.file_id);
         }
-
       }
+
+      // Search for quotes. Extracting all text between " "
+      let quotes = answer.match(/"(.*?)"/g)
+      console.log(quotes)
+      
+      if(quotes) {
+        // look for any quotes separated by ..., if there exists any split them 
+        // into separate quotes
+        let newQuotes: string[] = []
+        for (let quote of quotes) {
+          let splitQuotes = quote.split("...");
+          newQuotes = newQuotes.concat(splitQuotes);
+        }
+
+        for (let quote of newQuotes) {
+          // Check if contents of quote matches anything in corpora table content
+
+          // Short quotes may not be that useful, i.e one word
+          if(quote.length < 10) {
+            continue;
+          }
+
+          let quoteContent = quote.replace(/"/g, "");
+          // Check all selected corpora
+          let foundCorpus: CorpusName | null = null;
+          for (let corpus of selectedCorpora) {
+            let corporaData = await intextSearch(corpus, quoteContent)
+            if (corporaData.length > 0) {
+              foundCorpus = corpus;
+              break;
+            }
+          }
+
+          // console.log(`searching for ${quoteContent}`)
+          if (foundCorpus) {
+            console.log(`found ${quoteContent}`)
+            // Replace with URL to /intext?corpus=${corporaData.rows[0].id}&search=${quoteContent} using markdown
+            answer = answer.replace(quote, `[${quote}](${encodeURI(`/intext?corpus=${foundCorpus}&search=${quoteContent}`)})`);
+          }
+        }
+      }
+
       // console.log(message.content[0].text.annotations[0].file_citation);
       // Add the answer to the database
       const result = await sql`
