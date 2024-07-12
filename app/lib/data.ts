@@ -16,6 +16,7 @@ import { validateRequest } from '@/app/lib/auth';
 
 export async function fetchAnswers(userID?: string, bookmarked?: boolean) {
   noStore();
+  let currentUserID = await validateRequest();
   try {
     // const data = await sql<Answer>`SELECT * FROM answers ORDER BY id DESC`;
     // join using foreign key user_id
@@ -23,14 +24,27 @@ export async function fetchAnswers(userID?: string, bookmarked?: boolean) {
     let data: QueryResult<AnswerWithUserAndBookmarked>;
     if (userID) {
       if (bookmarked) {
-        data = await sql<AnswerWithUserAndBookmarked>`SELECT answers.*, users.name, users.picture, bookmarks.user_id IS NOT NULL as bookmarked FROM answers JOIN users ON answers.user_id = users.id JOIN bookmarks ON answers.id = bookmarks.answer_id AND bookmarks.user_id = ${userID} ORDER BY answers.id DESC LIMIT 50`;
+        data = await sql<AnswerWithUserAndBookmarked>`
+          SELECT answers.*, users.name, users.picture, bookmarks.user_id IS NOT NULL as bookmarked FROM answers 
+          JOIN users ON answers.user_id = users.id 
+          JOIN bookmarks ON answers.id = bookmarks.answer_id AND bookmarks.user_id = ${currentUserID} 
+          ORDER BY answers.id DESC LIMIT 50`;
       } else {
         // Select only answers by the user
-        data = await sql<AnswerWithUserAndBookmarked>`SELECT answers.*, users.name, users.picture, bookmarks.user_id IS NOT NULL as bookmarked FROM answers JOIN users ON answers.user_id = users.id LEFT JOIN bookmarks ON answers.id = bookmarks.answer_id AND bookmarks.user_id = ${userID} WHERE answers.user_id = ${userID} ORDER BY answers.id DESC LIMIT 50`;
+        data = await sql<AnswerWithUserAndBookmarked>`
+          SELECT answers.*, users.name, users.picture, bookmarks.user_id IS NOT NULL as bookmarked FROM answers 
+          JOIN users ON answers.user_id = users.id LEFT 
+          JOIN bookmarks ON answers.id = bookmarks.answer_id AND bookmarks.user_id = ${currentUserID}
+          WHERE answers.user_id = ${userID} 
+          ORDER BY answers.id DESC LIMIT 50`;
         // data = await sql<AnswerWithUserAndBookmarked>`SELECT answers.*, users.name, users.picture, bookmarks.user_id IS NOT NULL as bookmarked FROM answers WHERE  JOIN users ON answers.user_id = users.id LEFT JOIN bookmarks ON answers.id = bookmarks.answer_id AND bookmarks.user_id = ${userID} ORDER BY answers.id DESC LIMIT 50`;
       }
     } else {
-      data = await sql<AnswerWithUserAndBookmarked>`SELECT answers.*, users.name, users.picture, bookmarks.user_id IS NOT NULL as bookmarked FROM answers JOIN users ON answers.user_id = users.id LEFT JOIN bookmarks ON answers.id = bookmarks.answer_id ORDER BY answers.id DESC LIMIT 50`;
+      data = await sql<AnswerWithUserAndBookmarked>`
+        SELECT answers.*, users.name, users.picture, bookmarks.user_id IS NOT NULL as bookmarked FROM answers 
+        JOIN users ON answers.user_id = users.id LEFT 
+        JOIN bookmarks ON answers.id = bookmarks.answer_id AND bookmarks.user_id = ${currentUserID}
+        ORDER BY answers.id DESC LIMIT 50`;
     }
     // console.log(data.rows)
     return data.rows
