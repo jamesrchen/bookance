@@ -63,7 +63,6 @@ export async function getAnswer(question: string, selectedCorpora: CorpusName[] 
 
   const thread = await openai.beta.threads.create();
 
-
   const message = await openai.beta.threads.messages.create(
     thread.id,
     {
@@ -108,9 +107,6 @@ export async function getAnswer(question: string, selectedCorpora: CorpusName[] 
 
       // Search for quotes. Extracting all text between " "
       let quotes = answer.match(/"(.*?)"/g)
-      console.log(quotes)
-      
-      console.log(answer)
       if(quotes) {
         // look for any quotes separated by ... or [...]
         let newQuotes: string[] = []
@@ -141,16 +137,13 @@ export async function getAnswer(question: string, selectedCorpora: CorpusName[] 
             }
           }
 
-          // console.log(`searching for ${quoteContent}`)
           if (foundCorpus) {
-            console.log(`found ${quoteContent}`)
             // Replace with URL to /intext?corpus=${corporaData.rows[0].id}&search=${quoteContent} using markdown
             answer = answer.replace(quote, `[${quote}](${encodeURI(`/intext?corpus=${foundCorpus}&search=${quoteContent}`)})`);
           }
         }
       }
 
-      // console.log(message.content[0].text.annotations[0].file_citation);
       // Add the answer to the database
       const result = await sql`
         INSERT INTO answers (question, answer, user_id, corpora)

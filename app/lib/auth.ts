@@ -31,7 +31,6 @@ export const validateRequest = cache(
         return null;
       }
   
-      // console.log({payload, protectedHeader})
       return payload.id as string
     } catch (error) {
       return null
