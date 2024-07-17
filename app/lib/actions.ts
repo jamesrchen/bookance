@@ -15,7 +15,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_KEY, 
 });
 
-export async function getAnswer(question: string, selectedCorpora: CorpusName[] ) {
+export async function getAnswer(question: string, selectedCorpora: CorpusName[], extra: boolean = false) {
   // Validate user
   const userID = await validateRequest();
   if (!userID) {
@@ -34,7 +34,12 @@ export async function getAnswer(question: string, selectedCorpora: CorpusName[] 
 
   let files = selectedCorpora.map((name) => {
     let corpus = corpora[name];
-    return Object.keys(corpus.files);
+    let fileNames = Object.keys(corpus.files);
+    if (extra && "extra" in corpus) {
+      fileNames = fileNames.concat(Object.keys(corpus.extra));
+    }
+
+    return fileNames;
   }).flat(1);
 
   const vectorStore = await openai.beta.vectorStores.create({
@@ -51,6 +56,7 @@ export async function getAnswer(question: string, selectedCorpora: CorpusName[] 
                     You answer questions on works of literature provided.
                     Ensure you use relevant themes and literary devices in discussions.
                     Ensure that you also provide quotes to support your answer. Use > on a new line to indicate a quote, this is important.
+                    IMPORTANTLY, do not use quotes from the LitCharts or SparkNotes summaries, only use it as extra guidance. 
                     Make sure to keep your response short and concise as well, approximately 300 words.`,
     model: "gpt-4o",
     tools: [{"type": "file_search"}],
@@ -146,8 +152,8 @@ export async function getAnswer(question: string, selectedCorpora: CorpusName[] 
 
       // Add the answer to the database
       const result = await sql`
-        INSERT INTO answers (question, answer, user_id, corpora)
-        VALUES (${question}, ${answer}, ${userID}, ${JSON.stringify(selectedCorpora).replace("[", "{").replace("]", "}")} )
+        INSERT INTO answers (question, answer, user_id, corpora, extra)
+        VALUES (${question}, ${answer}, ${userID}, ${JSON.stringify(selectedCorpora).replace("[", "{").replace("]", "}")}, ${extra} )
       `
       revalidatePath('/');
       openai.beta.vectorStores.del(vectorStore.id);
@@ -168,7 +174,10 @@ export async function getAnswer(question: string, selectedCorpora: CorpusName[] 
                   icon_url: user.picture
                 },
                 title: question,
-                description: answer,
+                description: answer.replaceAll("/intext?corpus=", "https://bookance.jrc.sh/intext?corpus="),
+                footer: {
+                  text: selectedCorpora.join(", ")
+                }
               }
             ]
           })

@@ -7,6 +7,9 @@ export const corpora = {
       "file-mBGEWTEg7kccgPdQO6pENzwA": "WftB Chapter 4",
       "file-vOOVuFbQLKlEUaVpCJ4CWqek": "WftB Chapter 5",
       "file-8LgzGrvJR3WijsTPrZE8BYcQ": "WftB Chapter 6"
+    },
+    "extra": {
+      "file-XC0f645FFgx2DjswCmbEiCsQ": "WftB LitCharts"
     }
   },
   "Death and the Maiden": {
@@ -20,6 +23,9 @@ export const corpora = {
       "file-Y9EtjArp8VQuogNAwLdy65EK": "DatM Act 3 Scene 1",
       "file-cwgOVWf9ifJgTKG78a842JeZ": "DatM Act 3 Scene 2",
       "file-5kLTitG822G7HQkAYXQYmkf3": "DatM Afterword"
+    },
+    "extra": {
+      "file-BEeph4dXN0dJWSFvOrUo2MiJ": "DatM LitCharts"
     }
   },
   "The House of Bernarda Alba": {

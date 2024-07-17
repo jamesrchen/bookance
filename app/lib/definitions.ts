@@ -2,7 +2,14 @@ import { corpora } from '@/config';
 
 export type CorpusName = keyof typeof corpora;
 export type Corpus = typeof corpora[keyof typeof corpora];
-export const fileToTitle = new Map<string, string>(Object.entries(corpora).map(([corpus, {files}]) => Object.entries(files)).flat(1));
+export const fileToTitle = new Map<string, string>(Object.entries(corpora).map(([name, corpus]) => {
+  let entries: [string, string][] = Object.entries(corpus.files)
+  if("extra" in corpus) {
+    let extra = Object.entries(corpus.extra);
+    entries = entries.concat(extra);
+  }
+  return entries;
+}).flat(1));
 
 export enum AnswerView {
   user = 'My Answers',
@@ -16,6 +23,8 @@ export interface Answer {
   answer: string;
   user_id: string;
   corpora?: string[];
+  extra: boolean;
+  created_at: Date;
 }
 
 export interface AnswerWithUser extends Answer {

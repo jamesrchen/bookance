@@ -41,4 +41,6 @@ blockquote {
 
 a {
   text-decoration: underline;
+  /* make it navy blue */
+  color: navy;
 }

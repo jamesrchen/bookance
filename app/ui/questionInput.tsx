@@ -8,8 +8,10 @@ import { corpora } from "@/config";
 
 export default function QuestionInput() {
   let [question, setQuestion] = useState<string>("");
+  let [useExtra, setUseExtra] = useState<boolean>(false);
+
   let [waiting, setWaiting] = useState(0);
-  
+
 
   let [chosenCorpus, setChosenCorpus] = useState<CorpusName[]>([]);
 
@@ -42,7 +44,7 @@ export default function QuestionInput() {
           try {
             setError('');
             setWaiting(1);
-            await getAnswer(question, chosenCorpus);
+            await getAnswer(question, chosenCorpus, useExtra);
             setWaiting(0)
             setQuestion('');
           } catch {
@@ -83,6 +85,12 @@ export default function QuestionInput() {
     
     <p>Chosen corpus: <i>{chosenCorpus.length > 0 ? chosenCorpus.join(", ") : "None Selected"}</i></p>
     
+    {/* Checkbox for using more metadata */}
+    <div className="flex flex-row gap-2">
+      <input type="checkbox" checked={useExtra} onChange={() => setUseExtra(!useExtra)} />
+      <label>Use extra resources (i.e LitCharts). This will skew citations, but may generate more orthodox results.</label>
+    </div>
+
     {/* If preparing an answer */}
     <div className="flex flex-row w-full justify-center h-4">
       {waiting ? <p>Preparing answer... Hold on for a moment</p> : null}

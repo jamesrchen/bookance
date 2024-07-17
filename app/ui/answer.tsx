@@ -12,7 +12,10 @@ export default async function Answer({answer}: {answer: AnswerWithUserAndBookmar
   return (
     <div className="border-gray-500 border-2 px-5 py-2 rounded w-full flex flex-col gap-0.5">
       <h1 className="font-bold">{answer.question}</h1>
-      <span className="text-gray-500 italic">{answer.corpora?.join(", ")}</span>
+      <div className="flex flex-row justify-between flex-wrap">
+        <span className="text-gray-500 italic">{answer.corpora?.join(", ")} {answer.extra ? "+++" : ""}</span>
+        <span className="text-gray-500 italic">{answer.created_at.toLocaleDateString("en-GB")}</span>
+      </div>
       <hr/>
       <div className="leading-relaxed [&_h3]:text-lg [&_h4]:text-lg [&_h3]:font-semibold [&_h4]:font-medium [&_h3]:my-1 [&_h4]:my-0.5 [&_p]:my-1 [&_p]:indent-2">
         {/* {answer.answer} */}
