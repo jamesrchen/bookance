@@ -13,7 +13,7 @@ export default function BookSearchBar() {
     const params = new URLSearchParams(searchParams);
     params.set('search', search);
     replace(`${pathname}?${params.toString()}`);
-  }, 150);
+  }, 300);
 
   return (
     <input className="border-black border-2 w-full h-10 rounded-lg p-2"
