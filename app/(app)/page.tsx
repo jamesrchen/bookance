@@ -19,15 +19,15 @@ export default async function Home({
   let user = await fetchUserInfo(userID);
 
   let answerComponent
-  if (searchParams?.view === "all") {
+  if (searchParams?.view == "all") {
     answerComponent =  <Answers />;
-  } else if (searchParams?.view === "bookmarked") {
+  } else if (searchParams?.view == "bookmarked") {
     answerComponent =  <Answers userID={userID} bookmarked={true} />;
   } else {
     answerComponent =  <Answers userID={userID} />;
   }
   return (
-    <main className="flex flex-col align-middle justify-center p-10 lg:px-60 lg:py-20">
+    <main className="flex flex-col align-middle justify-center p-10 lg:px-60">
       <h1 className="text-lg font-bold">Welcome, {user.name}</h1>
       <QuestionInput />
       <AnswerListSelection />

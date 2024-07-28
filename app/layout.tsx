@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Literata } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react"
 import "./globals.css";
+import Navigation from "@/app/ui/navigation";
+import { FaRegLightbulb } from "react-icons/fa";
 
 const literata = Literata({ subsets: ["latin"] });
 

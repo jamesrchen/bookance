@@ -22,7 +22,7 @@ export default function AnswerListSelection() {
         whileHover={{ scale: 1.15 }}
         transition={{ delay: 0.05 }}
         onClick={() => {
-          router.replace(`/`)
+          router.replace(`/?view=mine`)
         }}
       >
         Mine
