@@ -1,5 +1,15 @@
 .navLink {
   /* remove underline */
   text-decoration: none;
-  color: black;
+  /* color: gray-500; */
+  @apply text-gray-500;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+/* on hover */
+.navLink:hover {
+  @apply text-black;
 }

@@ -37,7 +37,10 @@ export default async function Page({
               <span className="text-gray-600"> Page {page.page}</span>
             </div>
             <hr/>
-            <Markdown className="indent-2">{page.content}</Markdown>
+            <Markdown className="indent-2">{
+              // replace all instances of the search term with a highlighted version (add * to the front and back)
+              page.content.replace(new RegExp(search ?? '', 'gi'), (match) => `**${match}**`)
+            }</Markdown>
           </div>
         ))
       }
