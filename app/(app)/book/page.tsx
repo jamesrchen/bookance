@@ -14,15 +14,17 @@ export default async function Page({
 }: {
   searchParams?: { [key: string]: string | undefined };
 }) {
-
   async function getPages(search: string) {
     if (search.length < 3) return [];
-    let { rows } = await sql<book>`select * from books where content ILIKE ${`%${search}%`} ORDER BY PAGE ASC LIMIT 50`;
+    // get server time
+    let { rows } = await sql<book>`select * from books where content ILIKE ${`%${search}%`} ORDER BY PAGE ASC LIMIT 50`;;
     return rows;
   }
 
   let search = searchParams?.search;
+  let timeStart = new Date().getTime();
   let results = search ? await getPages(search) : [];
+  let timeEnd = new Date().getTime();
 
   return (
     <div className="flex flex-col px-10 lg:px-40 py-10">
@@ -44,6 +46,7 @@ export default async function Page({
           </div>
         ))
       }
+      <small>Search took {timeEnd - timeStart}ms</small>
     </div>
   );
 }
