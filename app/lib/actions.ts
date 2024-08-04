@@ -36,7 +36,7 @@ export async function getAnswer(question: string, selectedCorpora: CorpusName[],
     if (extra && "extra" in corpus) {
       fileNames = fileNames.concat(Object.keys(corpus.extra));
     }
-    fileNames.concat(Object.keys(corpus.files));
+    fileNames = fileNames.concat(Object.keys(corpus.files));
 
     return fileNames;
   }).flat(1);
