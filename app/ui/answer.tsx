@@ -27,10 +27,10 @@ export default async function Answer({answer}: {answer: AnswerWithUserAndBookmar
         <Markdown>{answer.answer}</Markdown>
       </div>
       <div className="mt-2 mb-2 w-full flex flex-row gap-2 content-end align-bottom">
-        {
-          user?.premium ? <AnswerHideButton id={answer.id} hidden={answer.hidden} /> : null
-        }
         <AnswerLikeButton id={answer.id} liked={answer.bookmarked} /> 
+        {
+          user?.premium && answer.user_id == user.id ? <AnswerHideButton id={answer.id} hidden={answer.hidden} /> : null
+        }
         {/* <FaBookmark size={20} className="text-gray-500" /> */}
         {/* <FaThumbsUp size={20} className="text-gray-500" />
         <span className="text-gray-500">1</span> */}
