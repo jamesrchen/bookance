@@ -39,7 +39,8 @@ export const validateRequest = cache(
     
       return user;
     } catch (error) {
-      console.error('Database Error:', error);
+      console.error('Authentication Error:', error);
+      return null;
       throw new Error('Failed to fetch user info');
     }
   }
