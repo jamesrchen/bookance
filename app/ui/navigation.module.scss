@@ -1,4 +1,4 @@
-.navLink {
+%navElement {
   /* remove underline */
   text-decoration: none;
   /* color: gray-500; */
@@ -9,7 +9,19 @@
   gap: 0.2rem;
 }
 
-/* on hover */
-.navLink:hover {
-  @apply text-black;
+
+
+.navUser {
+  @extend %navElement;
 }
+
+/* on hover */
+.navLink {
+  @extend %navElement;
+  &:hover {
+    @apply text-black;
+  }
+}
+
+/* extend navlink style to make user display style */
+

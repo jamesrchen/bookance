@@ -25,6 +25,7 @@ export interface Answer {
   corpora?: string[];
   extra: boolean;
   created_at: Date;
+  hidden: boolean;
 }
 
 export interface AnswerWithUser extends Answer {
@@ -41,6 +42,11 @@ export interface User {
   email: string;
   name: string;
   picture: string;
+  premium_until?: Date;
+}
+
+export interface UserWithPremiumCheck extends User {
+  premium: boolean;
 }
 
 export interface Comment {

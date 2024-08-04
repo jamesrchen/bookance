@@ -1,15 +1,23 @@
+import { validateRequest } from "@/app/lib/auth";
+import { fetchUserInfo } from "@/app/lib/data";
 import Navigation from "@/app/ui/navigation";
+import { redirect } from "next/navigation";
 import { FaRegLightbulb } from "react-icons/fa";
 
-export default function Layout({
+export default async function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  let user = await validateRequest();
+  if(!user){
+    return redirect("/login");
+  }
+
   return (
     <>
     <div className="">
-      <Navigation />
+      <Navigation user={user}/>
       <div className="border-b-2 border-gray-300 rounded-b-lg flex flex-row flex-wrap lg:flex-nowrap gap-2 py-2 px-4 items-center">
         <FaRegLightbulb />
         <span className="break-words">

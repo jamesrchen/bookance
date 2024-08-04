@@ -17,12 +17,10 @@ const openai = new OpenAI({
 
 export async function getAnswer(question: string, selectedCorpora: CorpusName[], extra: boolean = false) {
   // Validate user
-  const userID = await validateRequest();
-  if (!userID) {
+  const user = await validateRequest();
+  if (!user) {
     throw new Error("User not authenticated");
   }
-
-  const user = await fetchUserInfo(userID);
 
   if (!question || question.length === 0) {
     throw new Error("Question is required");
@@ -34,16 +32,17 @@ export async function getAnswer(question: string, selectedCorpora: CorpusName[],
 
   let files = selectedCorpora.map((name) => {
     let corpus = corpora[name];
-    let fileNames = Object.keys(corpus.files);
+    let fileNames: string[] = []
     if (extra && "extra" in corpus) {
       fileNames = fileNames.concat(Object.keys(corpus.extra));
     }
+    fileNames.concat(Object.keys(corpus.files));
 
     return fileNames;
   }).flat(1);
 
   const vectorStore = await openai.beta.vectorStores.create({
-    name: `Search for ${userID}`,
+    name: `Search for ${user.id}`,
     file_ids: files,
     expires_after: {
       anchor: "last_active_at",
@@ -153,7 +152,7 @@ export async function getAnswer(question: string, selectedCorpora: CorpusName[],
       // Add the answer to the database
       const result = await sql`
         INSERT INTO answers (question, answer, user_id, corpora, extra)
-        VALUES (${question}, ${answer}, ${userID}, ${JSON.stringify(selectedCorpora).replace("[", "{").replace("]", "}")}, ${extra} )
+        VALUES (${question}, ${answer}, ${user.id}, ${JSON.stringify(selectedCorpora).replace("[", "{").replace("]", "}")}, ${extra} )
       `
       revalidatePath('/');
       openai.beta.vectorStores.del(vectorStore.id);
@@ -206,21 +205,9 @@ export async function getAnswer(question: string, selectedCorpora: CorpusName[],
 //   }
 // }
 
-export async function getCurrentUser() {
-  const userID = await validateRequest();
-  if (!userID) {
-    throw new Error("User not authenticated");
-  }
-
-  const data = await sql<User>`
-    SELECT * FROM users WHERE id = ${userID}
-  `;
-  return data.rows[0];
-}
-
 export async function submitComment(answerID: number, content: string) {
-  const userID = await validateRequest();
-  if (!userID) {
+  const user = await validateRequest();
+  if (!user) {
     throw new Error("User not authenticated");
   }
 
@@ -230,33 +217,59 @@ export async function submitComment(answerID: number, content: string) {
 
   const result = await sql`
     INSERT INTO comments (answer_id, user_id, content)
-    VALUES (${answerID}, ${userID}, ${content})
+    VALUES (${answerID}, ${user.id}, ${content})
   `;
   revalidatePath('/');
 }
 
 export async function bookmarkAnswers(answerID: number) {
-  const userID = await validateRequest();
-  if (!userID) {
+  const user = await validateRequest();
+  if (!user) {
     throw new Error("User not authenticated");
   }
 
   const result = await sql`
     INSERT INTO bookmarks (user_id, answer_id)
-    VALUES (${userID}, ${answerID})
+    VALUES (${user.id}, ${answerID})
   `;
   revalidatePath('/');
 }
 
 export async function unbookmarkAnswers(answerID: number) {
-  const userID = await validateRequest();
-  if (!userID) {
+  const user = await validateRequest();
+  if (!user) {
     throw new Error("User not authenticated");
   }
 
   const result = await sql`
     DELETE FROM bookmarks
-    WHERE user_id = ${userID} AND answer_id = ${answerID}
+    WHERE user_id = ${user.id} AND answer_id = ${answerID}
+  `;
+  revalidatePath('/');
+}
+
+export async function hideAnswer(answerID: number) {
+  const user = await validateRequest();
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+
+  const result = await sql`
+    UPDATE answers SET hidden = true
+    WHERE id = ${answerID} AND user_id = ${user.id}
+  `;
+  revalidatePath('/');
+}
+
+export async function unhideAnswer(answerID: number) {
+  const user = await validateRequest();
+  if (!user) {
+    throw new Error("User not authenticated");
+  }
+
+  const result = await sql`
+    UPDATE answers SET hidden = false
+    WHERE id = ${answerID} AND user_id = ${user.id}
   `;
   revalidatePath('/');
 }

@@ -12,19 +12,18 @@ export default async function Home({
 }: {
   searchParams?: { [key: string]: string | undefined };
 }) {
-  let userID = await validateRequest();
-  if (!userID) {
+  let user = await validateRequest();
+  if (!user) {
 		return redirect("/login");
 	}
-  let user = await fetchUserInfo(userID);
 
   let answerComponent
   if (searchParams?.view == "all") {
     answerComponent =  <Answers />;
   } else if (searchParams?.view == "bookmarked") {
-    answerComponent =  <Answers userID={userID} bookmarked={true} />;
+    answerComponent =  <Answers userID={user.id} bookmarked={true} />;
   } else {
-    answerComponent =  <Answers userID={userID} />;
+    answerComponent =  <Answers userID={user.id} />;
   }
   return (
     <main className="flex flex-col align-middle justify-center p-10 lg:px-60">

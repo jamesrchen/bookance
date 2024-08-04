@@ -17,7 +17,7 @@ export default async function Page({
   async function getPages(search: string, corpus: string) {
     if (search.length < 3) return [];
     // get server time
-    let { rows } = await sql<book>`select * from books where corpus = ${corpus} AND content ILIKE ${`%${search}%`} ORDER BY PAGE ASC LIMIT 50`;;
+    let { rows } = await sql<book>`select * from books where corpus = ${corpus} AND content ILIKE ${`%${search}%`} ORDER BY PAGE ASC LIMIT 50`;
     return rows;
   }
 

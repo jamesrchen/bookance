@@ -1,13 +1,17 @@
-import { fetchComment } from "@/app/lib/data";
-import { AnswerWithUser, AnswerWithUserAndBookmarked } from "@/app/lib/definitions";
+import { fetchComment, fetchUserInfo } from "@/app/lib/data";
+import { AnswerWithUser, AnswerWithUserAndBookmarked, UserWithPremiumCheck } from "@/app/lib/definitions";
 import CommentInput from "@/app/ui/commentInput";
 import Markdown, { AllowElement } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { FaRegBookmark, FaBookmark, FaRegThumbsUp, FaThumbsUp } from "react-icons/fa";
 import AnswerLikeButton from "@/app/ui/answerLikeButton";
+import AnswerHideButton from "@/app/ui/answerHideButton";
+import { validateRequest } from "@/app/lib/auth";
 
 export default async function Answer({answer}: {answer: AnswerWithUserAndBookmarked}) {
   let comments = await fetchComment(answer.id);
+
+  let user = await validateRequest();
 
   return (
     <div className="border-gray-500 border-2 px-5 py-2 rounded w-full flex flex-col gap-0.5">
@@ -23,7 +27,10 @@ export default async function Answer({answer}: {answer: AnswerWithUserAndBookmar
         <Markdown>{answer.answer}</Markdown>
       </div>
       <div className="mt-2 mb-2 w-full flex flex-row gap-2 content-end align-bottom">
-        <AnswerLikeButton id={answer.id} liked={answer.bookmarked} />
+        {
+          user?.premium ? <AnswerHideButton id={answer.id} hidden={answer.hidden} /> : null
+        }
+        <AnswerLikeButton id={answer.id} liked={answer.bookmarked} /> 
         {/* <FaBookmark size={20} className="text-gray-500" /> */}
         {/* <FaThumbsUp size={20} className="text-gray-500" />
         <span className="text-gray-500">1</span> */}

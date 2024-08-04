@@ -1,11 +1,14 @@
 import { QueryResult, sql } from '@vercel/postgres';
-import { Answer, AnswerWithUser, AnswerWithUserAndBookmarked, Comment, CommentWithUser, CorporaSearch, Corpus, CorpusName, User } from '@/app/lib/definitions';
+import { Answer, AnswerWithUser, AnswerWithUserAndBookmarked, Comment, CommentWithUser, CorporaSearch, Corpus, CorpusName, User, UserWithPremiumCheck } from '@/app/lib/definitions';
 import { unstable_noStore as noStore } from 'next/cache';
 import { validateRequest } from '@/app/lib/auth';
 
 export async function fetchAnswers(userID?: string, bookmarked?: boolean) {
   noStore();
-  let currentUserID = await validateRequest();
+  let currentUser = await validateRequest();
+  if (!currentUser) {
+    throw new Error("User not authenticated");
+  }
   try {
     let data: QueryResult<AnswerWithUserAndBookmarked>;
     if (userID) {
@@ -13,14 +16,14 @@ export async function fetchAnswers(userID?: string, bookmarked?: boolean) {
         data = await sql<AnswerWithUserAndBookmarked>`
           SELECT answers.*, users.name, users.picture, bookmarks.user_id IS NOT NULL as bookmarked FROM answers 
           JOIN users ON answers.user_id = users.id 
-          JOIN bookmarks ON answers.id = bookmarks.answer_id AND bookmarks.user_id = ${currentUserID} 
+          JOIN bookmarks ON answers.id = bookmarks.answer_id AND bookmarks.user_id = ${currentUser.id} 
           ORDER BY answers.id DESC LIMIT 50`;
       } else {
         // Select only answers by the user
         data = await sql<AnswerWithUserAndBookmarked>`
           SELECT answers.*, users.name, users.picture, bookmarks.user_id IS NOT NULL as bookmarked FROM answers 
           JOIN users ON answers.user_id = users.id LEFT 
-          JOIN bookmarks ON answers.id = bookmarks.answer_id AND bookmarks.user_id = ${currentUserID}
+          JOIN bookmarks ON answers.id = bookmarks.answer_id AND bookmarks.user_id = ${currentUser.id}
           WHERE answers.user_id = ${userID} 
           ORDER BY answers.id DESC LIMIT 50`;
       }
@@ -28,7 +31,7 @@ export async function fetchAnswers(userID?: string, bookmarked?: boolean) {
       data = await sql<AnswerWithUserAndBookmarked>`
         SELECT answers.*, users.name, users.picture, bookmarks.user_id IS NOT NULL as bookmarked FROM answers 
         JOIN users ON answers.user_id = users.id LEFT 
-        JOIN bookmarks ON answers.id = bookmarks.answer_id AND bookmarks.user_id = ${currentUserID}
+        JOIN bookmarks ON answers.id = bookmarks.answer_id AND bookmarks.user_id = ${currentUser.id}
         ORDER BY answers.id DESC LIMIT 50`;
     }
     return data.rows
@@ -38,11 +41,20 @@ export async function fetchAnswers(userID?: string, bookmarked?: boolean) {
   }
 }
 
-export async function fetchUserInfo(id: string) {
+export async function fetchUserInfo(id: string): Promise<UserWithPremiumCheck> {
   noStore();
+  console.log("Calling val2")
   try {
     const data = await sql<User>`SELECT * FROM users WHERE id = ${id}`;
-    return data.rows[0];
+    if (data.rows.length === 0) {
+      throw new Error('User not found');
+    }
+    let user: UserWithPremiumCheck = {... data.rows[0], premium: false};
+    if (user.premium_until && user.premium_until > new Date()) {
+      user.premium = true;
+    }
+
+    return user;
   } catch (error) {
     console.error('Database Error:', error);
     throw new Error('Failed to fetch user info');
