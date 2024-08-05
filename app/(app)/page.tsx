@@ -28,7 +28,7 @@ export default async function Home({
   return (
     <main className="flex flex-col align-middle justify-center p-10 lg:px-60">
       <h1 className="text-lg font-bold">Welcome, {user.name}</h1>
-      <QuestionInput />
+      <QuestionInput showHideButton={user.premium} />
       <AnswerListSelection />
       {answerComponent}
     </main>

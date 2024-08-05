@@ -15,7 +15,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_KEY, 
 });
 
-export async function getAnswer(question: string, selectedCorpora: CorpusName[], extra: boolean = false) {
+export async function getAnswer(question: string, selectedCorpora: CorpusName[], extra: boolean = false, hidden: boolean = false) {
   // Validate user
   const user = await validateRequest();
   if (!user) {
@@ -28,6 +28,10 @@ export async function getAnswer(question: string, selectedCorpora: CorpusName[],
 
   if (!selectedCorpora || selectedCorpora.length === 0) {
     throw new Error("Corpora is required");
+  }
+
+  if (hidden && !user.premium) {
+    throw new Error("Hiding answers is a premium feature");
   }
 
   let files = selectedCorpora.map((name) => {
@@ -151,8 +155,8 @@ export async function getAnswer(question: string, selectedCorpora: CorpusName[],
 
       // Add the answer to the database
       const result = await sql`
-        INSERT INTO answers (question, answer, user_id, corpora, extra)
-        VALUES (${question}, ${answer}, ${user.id}, ${JSON.stringify(selectedCorpora).replace("[", "{").replace("]", "}")}, ${extra} )
+        INSERT INTO answers (question, answer, user_id, corpora, extra, hidden)
+        VALUES (${question}, ${answer}, ${user.id}, ${JSON.stringify(selectedCorpora).replace("[", "{").replace("]", "}")}, ${extra}, ${hidden})
       `
       revalidatePath('/');
       openai.beta.vectorStores.del(vectorStore.id);

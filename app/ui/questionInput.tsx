@@ -5,10 +5,17 @@ import { motion } from "framer-motion";
 import { getAnswer } from "@/app/lib/actions";
 import { Corpus, CorpusName } from "@/app/lib/definitions";
 import { corpora } from "@/config";
+import { validateRequest } from "@/app/lib/auth";
+import { FaUserAstronaut } from "react-icons/fa";
 
-export default function QuestionInput() {
+export default function QuestionInput({
+  showHideButton,
+}:{
+  showHideButton: boolean
+}) {
   let [question, setQuestion] = useState<string>("");
   let [useExtra, setUseExtra] = useState<boolean>(false);
+  let [hideAnswer, setHideAnswer] = useState<boolean>(false);
 
   let [waiting, setWaiting] = useState(0);
 
@@ -44,7 +51,7 @@ export default function QuestionInput() {
           try {
             setError('');
             setWaiting(1);
-            await getAnswer(question, chosenCorpus, useExtra);
+            await getAnswer(question, chosenCorpus, useExtra, hideAnswer);
             setWaiting(0)
             setQuestion('');
           } catch {
@@ -90,6 +97,16 @@ export default function QuestionInput() {
       <input type="checkbox" checked={useExtra} onChange={() => setUseExtra(!useExtra)} />
       <label>Use extra resources (i.e LitCharts). This will skew citations, but may generate more orthodox results.</label>
     </div>
+
+    {
+      showHideButton ? (
+        <div className="flex flex-row gap-2 items-center">
+          <input type="checkbox" checked={hideAnswer} onChange={() => setHideAnswer(!hideAnswer)} />
+          <label>Hide question after submitting</label>
+          <FaUserAstronaut />
+        </div>
+      ) : null
+    }
 
     {/* If preparing an answer */}
     <div className="flex flex-row w-full justify-center h-4">
