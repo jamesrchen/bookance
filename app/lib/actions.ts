@@ -15,7 +15,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_KEY, 
 });
 
-export async function getAnswer(question: string, selectedCorpora: CorpusName[], extra: boolean = false, hidden: boolean = false) {
+export async function getAnswer(question: string, selectedCorpora: CorpusName[], extra: boolean = false, hidden: boolean = false, largeModel: boolean = false, listQuotes: boolean = false) {
   // Validate user
   const user = await validateRequest();
   if (!user) {
@@ -56,12 +56,13 @@ export async function getAnswer(question: string, selectedCorpora: CorpusName[],
 
   const assistant = await openai.beta.assistants.create({
     instructions: `You are a literature assistant.
-                    You answer questions on works of literature provided.
-                    Ensure you use relevant themes and literary devices in discussions.
-                    Ensure that you also provide quotes to support your answer. Use > on a new line to indicate a quote, this is important.
-                    IMPORTANTLY, do not use quotes from the LitCharts or SparkNotes summaries, only use it as extra guidance. 
+                    You answer questions on works of literature provided. Do not answer any questions about your own self, if asked, respond that you do not understand the question.
+                    ${listQuotes ? "You provide a list of quotes that may aid in answering the given question." : "Ensure you use relevant themes and literary devices in discussions. \nEnsure that you also provide quotes to support your answer."}
+                    ${extra ? "IMPORTANTLY, do not use quotes from the LitCharts or SparkNotes summaries, only use it as extra guidance." : ""}
+                    You may also number your points to respond in point form as well ${listQuotes? ", providing a quote chunk to substantiate a point" : ""}.
+                    IMPORTANT: Using 1-2 sentence quotes, use a greater than sign on a new line followed by a quote to indicate chunk quotes. ${listQuotes ? "Only provide a list of quotes using a greater than sign" : "Where necessary, you may also embed one to five word quotes in your response"}.
                     Make sure to keep your response short and concise as well, approximately 300 words.`,
-    model: "gpt-4o",
+    model: `gpt-4o-mini`,
     tools: [{"type": "file_search"}],
     tool_resources: {
       "file_search": {
@@ -163,7 +164,7 @@ export async function getAnswer(question: string, selectedCorpora: CorpusName[],
       openai.beta.assistants.del(assistant.id);
 
       // Notify discord webhook
-      if (process.env.DISCORD_WEBHOOK_URL) {
+      if (!hidden && process.env.DISCORD_WEBHOOK_URL) {
         fetch(process.env.DISCORD_WEBHOOK_URL, {
           method : 'POST',
           headers: {

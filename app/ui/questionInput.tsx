@@ -9,12 +9,14 @@ import { validateRequest } from "@/app/lib/auth";
 import { FaUserAstronaut } from "react-icons/fa";
 
 export default function QuestionInput({
-  showHideButton,
+  premium,
 }:{
-  showHideButton: boolean
+  premium: boolean
 }) {
   let [question, setQuestion] = useState<string>("");
   let [useExtra, setUseExtra] = useState<boolean>(false);
+  let [largeModel, setLargeModel] = useState<boolean>(false);
+  let [listQuotes, setListQuotes] = useState<boolean>(false);
   let [hideAnswer, setHideAnswer] = useState<boolean>(false);
 
   let [waiting, setWaiting] = useState(0);
@@ -51,7 +53,7 @@ export default function QuestionInput({
           try {
             setError('');
             setWaiting(1);
-            await getAnswer(question, chosenCorpus, useExtra, hideAnswer);
+            await getAnswer(question, chosenCorpus, useExtra, hideAnswer, largeModel, listQuotes);
             setWaiting(0)
             setQuestion('');
           } catch {
@@ -99,7 +101,27 @@ export default function QuestionInput({
     </div>
 
     {
-      showHideButton ? (
+      premium ? (
+        <div className="flex flex-row gap-2 items-center">
+          <input type="checkbox" checked={largeModel} onChange={() => setLargeModel(!largeModel)} />
+          <label>Use larger model (may produce better results)</label>
+          <FaUserAstronaut />
+        </div>
+      ) : null
+    }
+
+    {
+      premium ? (
+        <div className="flex flex-row gap-2 items-center">
+          <input type="checkbox" checked={listQuotes} onChange={() => setListQuotes(!listQuotes)} />
+          <label>Emphasise quote listing</label>
+          <FaUserAstronaut />
+        </div>
+      ) : null
+    }
+
+    {
+      premium ? (
         <div className="flex flex-row gap-2 items-center">
           <input type="checkbox" checked={hideAnswer} onChange={() => setHideAnswer(!hideAnswer)} />
           <label>Hide question after submitting</label>
