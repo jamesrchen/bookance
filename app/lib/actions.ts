@@ -77,7 +77,7 @@ export async function getAnswer(question: string, selectedCorpora: CorpusName[],
     thread.id,
     {
       role: "user",
-      content: question
+      content: `${question} (Answer with respect to ${selectedCorpora.join(", ")} which are provided)`
     }
   );
 
