@@ -21,13 +21,7 @@ export default async function Layout({
       <div className="border-b-2 border-gray-300 rounded-b-lg flex flex-row flex-wrap lg:flex-nowrap gap-2 py-2 px-4 items-center">
         <FaRegLightbulb />
         <span className="break-words">
-          Book search aims to help find you search for the exact page number of a quote. It is a work-in-progress and currently only supports WftB and DatM.
-        </span>
-      </div>
-      <div className="border-b-2 border-gray-300 rounded-b-lg flex flex-row flex-wrap lg:flex-nowrap gap-2 py-2 px-4 items-center">
-        <FaHammer />
-        <span className="break-words">
-          Fixed an issue where the books were not directly referenced outside of LitCharts
+          Check out mugmug, a questionbank and revision tracker. <a href="https://mugmug.jrc.sh" className="underline">mugmug.jrc.sh</a>
         </span>
       </div>
     </div>
