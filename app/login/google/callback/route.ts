@@ -104,7 +104,7 @@ export async function GET(req: NextRequest) {
     if (error instanceof OAuth2RequestError) {
       const { request, message, description } = error;
       console.error("OAuth2RequestError req: ", request);
-      console.error("OAuth2RequestError message: ", message);
+      console.error("OAuth2RequestError message: ", JSON.stringify(message));
       console.error("OAuth2RequestError description: ", description);
     }
 
