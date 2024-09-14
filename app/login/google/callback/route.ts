@@ -39,9 +39,10 @@ export async function GET(req: NextRequest) {
     return Response.redirect(`${process.env.BASE_URL}/login`);
   }
 
-  const { accessToken, idToken } = await google.validateAuthorizationCode(code, codeVerifier);
-
+  
   try {
+    const { accessToken, idToken } = await google.validateAuthorizationCode(code, codeVerifier);
+    
     const googleRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
       headers: {
         Authorization: `Bearer ${accessToken}`
