@@ -102,7 +102,8 @@ export async function GET(req: NextRequest) {
     // );
   } catch (error) {
     if (error instanceof OAuth2RequestError) {
-      console.error("OAuth2RequestError", error);
+      const { request, message, description } = error;
+      console.error("OAuth2RequestError", request, message, description);
     }
 
     console.error(error);
