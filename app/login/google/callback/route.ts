@@ -41,8 +41,10 @@ export async function GET(req: NextRequest) {
 
   
   try {
-    const { accessToken, idToken } = await google.validateAuthorizationCode(code, codeVerifier);
-    
+    console.log("Attempting to access token by validateAuthorizationCode");
+    const { accessToken } = await google.validateAuthorizationCode(code, codeVerifier);
+
+    console.log("Sending request to googleapis");
     const googleRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
       headers: {
         Authorization: `Bearer ${accessToken}`
