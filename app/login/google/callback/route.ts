@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
       process.env.GOOGLE_CLIENT_SECRET!,
       process.env.GOOGLE_REDIRECT_URI!,
     )
-    const { accessToken } = await google.validateAuthorizationCode(code, codeVerifier);
+    const { accessToken } = await google.validateAuthorizationCode(code.trim(), codeVerifier.trim());
 
     console.log("Sending request to googleapis");
     const googleRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
