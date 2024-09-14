@@ -1,3 +1,5 @@
+export const revalidate = 0;
+
 import { generateCodeVerifier, generateState, Google } from "arctic";
 // import { google } from "@/app/lib/auth";
 import { cookies } from "next/headers";
@@ -47,6 +49,7 @@ export async function GET(req: NextRequest) {
       process.env.GOOGLE_CLIENT_SECRET!,
       process.env.GOOGLE_REDIRECT_URI!,
     )
+    console.log(code, codeVerifier);
     const { accessToken } = await google.validateAuthorizationCode(code.trim(), codeVerifier.trim());
 
     console.log("Sending request to googleapis");
