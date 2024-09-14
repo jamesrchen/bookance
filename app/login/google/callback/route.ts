@@ -1,6 +1,6 @@
 export const revalidate = 0;
 
-import { generateCodeVerifier, generateState, Google } from "arctic";
+import { generateCodeVerifier, generateState, Google, OAuth2RequestError } from "arctic";
 // import { google } from "@/app/lib/auth";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
@@ -101,6 +101,10 @@ export async function GET(req: NextRequest) {
     //   `token = ${jwt}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=7200;`
     // );
   } catch (error) {
+    if (error instanceof OAuth2RequestError) {
+      console.error("OAuth2RequestError", error);
+    }
+
     console.error(error);
     return Response.redirect(`${process.env.BASE_URL}/`);
   }
