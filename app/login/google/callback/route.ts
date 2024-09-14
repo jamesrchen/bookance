@@ -1,5 +1,5 @@
-import { generateCodeVerifier, generateState } from "arctic";
-import { google } from "@/app/lib/auth";
+import { generateCodeVerifier, generateState, Google } from "arctic";
+// import { google } from "@/app/lib/auth";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 import { db, sql } from "@vercel/postgres";
@@ -42,6 +42,11 @@ export async function GET(req: NextRequest) {
   
   try {
     console.log("Attempting to access token by validateAuthorizationCode");
+    let google = new Google(
+      process.env.GOOGLE_CLIENT_ID!,
+      process.env.GOOGLE_CLIENT_SECRET!,
+      process.env.GOOGLE_REDIRECT_URI!,
+    )
     const { accessToken } = await google.validateAuthorizationCode(code, codeVerifier);
 
     console.log("Sending request to googleapis");
